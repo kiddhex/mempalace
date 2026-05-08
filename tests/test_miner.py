@@ -31,6 +31,10 @@ def test_project_mining():
             project_root / "backend" / "app.py",
             "def main():\n    print('hello world')\n" * 20,
         )
+        write_file(
+            project_root / "backend" / "index.php",
+            "<?php\nfunction hello() {\n    echo 'hello world';\n}\n" * 20,
+        )
         with open(project_root / "mempalace.yaml", "w") as f:
             yaml.dump(
                 {
@@ -48,7 +52,14 @@ def test_project_mining():
 
         client = chromadb.PersistentClient(path=str(palace_path))
         col = client.get_collection("mempalace_drawers")
-        assert col.count() > 0
+        
+        # Check metadata to find all filed stones
+        metas = col.get(include=["metadatas"])["metadatas"]
+        sources = {m.get("source_file") for m in metas}
+        
+        # Must find both paths in the palace
+        assert str(project_root / "backend" / "app.py") in sources
+        assert str(project_root / "backend" / "index.php") in sources
     finally:
         shutil.rmtree(tmpdir, ignore_errors=True)
 

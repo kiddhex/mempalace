@@ -55,6 +55,7 @@ READABLE_EXTENSIONS = {
     ".csv",
     ".sql",
     ".toml",
+    ".php",
 }
 
 SKIP_FILENAMES = {
